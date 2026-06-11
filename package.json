@@ -1,0 +1,42 @@
+{
+  "name": "react_nodejs",
+  "version": "1.0.0",
+  "description": "A modern full-stack forum client built with React, TypeScript, Redux, and TanStack Query. This frontend is structured using a feature-based architecture and includes authentication, thread browsing, pagination, debounced search, and an AI-powered summary feature.",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tamaR-797/React_Nodejs.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/tamaR-797/React_Nodejs/issues"
+  },
+  "homepage": "https://github.com/tamaR-797/React_Nodejs#readme",
+  "dependencies": {
+    "@hookform/resolvers": "^3.9.1",
+    "@reduxjs/toolkit": "^2.5.0",
+    "@tanstack/react-query": "^5.62.0",
+    "axios": "^1.7.9",
+    "framer-motion": "^12.40.0",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
+    "react-hook-form": "^7.78.0",
+    "react-redux": "^9.3.0",
+    "react-router-dom": "^7.17.0",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.15",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.2",
+    "typescript": "^6.0.3",
+    "vite": "^8.0.16"
+  }
+}
