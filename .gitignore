@@ -1,0 +1,43 @@
+# Dependency directories (NPM folder)
+node_modules/
+jspm_packages/
+web_modules/
+
+# Logs folder and log files
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Environment variables and secrets
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env*.local
+
+# Production/Build outputs (React server-side / Next.js / Remix / Node)
+.next/
+build/
+dist/
+out/
+.cache/
+
+# IDE and Editor configurations
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Diagnostic reports
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+
+# Operating System files
+.DS_Store
+Thumbs.db
