@@ -27,21 +27,16 @@ const RegisterPage: React.FC = () => {
     defaultValues: { name: '', email: '', password: '' },
   });
 
-  const onSubmit = async (values: RegisterFormValues) => {
+const onSubmit = async (values: RegisterFormValues) => {
     setSubmitError(null);
     try {
       await registerUser(values as RegisterRequest);
       navigate('/login', { state: { message: 'ההרשמה הושלמה בהצלחה. אנא היכנס.' } });
-    } catch (error: unknown) {
-      let message = 'שגיאת הרשמה';
-      if (error && typeof error === 'object' && 'response' in error) {
-        const axiosErr = error as { response?: { data?: { message?: string } }; message?: string };
-        message = axiosErr.response?.data?.message || axiosErr.message || message;
-      }
-      setSubmitError(message);
+    } catch (error: any) {
+      const serverMessage = error.response?.data?.message || error.message || 'שגיאת הרשמה כללית';
+      setSubmitError(serverMessage);
     }
   };
-
   return (
     <div className="auth-page">
       <div className="auth-visual">

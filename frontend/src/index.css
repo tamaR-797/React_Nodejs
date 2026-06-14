@@ -483,9 +483,11 @@ button {
 }
 
 .comment-action-btn.delete-btn:hover {
-  background: #fee2e2;
+  border: 3px solid rgba(226, 72, 72, 0.5);
 }
-
+.comment-action-btn.edit-btn:hover {
+  border: 3px solid rgb(88, 185, 88,0.5);
+}
 .edit-comment-form {
   margin-top: 0.75rem;
   padding: 0.75rem;

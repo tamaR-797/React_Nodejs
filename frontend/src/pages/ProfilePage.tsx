@@ -1,10 +1,10 @@
-// src/pages/ProfilePage.tsx
 import React, { useEffect, useState } from 'react';
 import { useAppDispatch } from '../hooks/useAppDispatch';
 import { useAppSelector } from '../hooks/useAppSelector';
 import { updateUser } from '../features/auth/authSlice';
 import { getCurrentUser, uploadAvatar } from '../api/usersApi';
 import UserAvatar from '../components/UserAvatar';
+import ProfileStats from '../components/ProfileStats'; // 🔥 הייבוא החדש
 
 const ProfilePage: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -41,9 +41,9 @@ const ProfilePage: React.FC = () => {
           threadsCount: data.threadsCount ?? 0,
           commentsCount: data.commentsCount ?? 0,
         });
-      } catch (err) {
+      } catch (err: any) {
         console.error(err);
-        setError('שגיאה בטעינת נתוני הפרופיל');
+        setError(err.response?.data?.message || 'שגיאה בטעינת נתוני הפרופיל');
       } finally {
         setLoading(false);
       }
@@ -52,45 +52,39 @@ const ProfilePage: React.FC = () => {
     fetchProfile();
   }, [reduxUser]);
 
-const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-  const file = event.target.files?.[0];
-  if (!file) return;
+  const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
 
-  setUploading(true);
-  setError(null);
+    setUploading(true);
+    setError(null);
 
-  try {
-    const response = await uploadAvatar(file); 
-    
-    // תיקון השגיאה: גישה ישירה ל-avatarUrl מתוך ה-response או קסטינג ל-any
-    // אם הטיפוס UserProfile מכיל את avatarUrl, השורה הבאה תעבוד מצוין:
-    const newAvatarUrl = (response as any).data?.avatarUrl || (response as any).avatarUrl;
+    try {
+      const response = await uploadAvatar(file); 
+      const newAvatarUrl = (response as any).data?.avatarUrl || (response as any).avatarUrl;
 
-    // 1. עדכון ה-State המקומי של העמוד
-    if (profile) {
-      setProfile({ ...profile, avatarUrl: newAvatarUrl });
+      if (profile) {
+        setProfile({ ...profile, avatarUrl: newAvatarUrl });
+      }
+
+      if (reduxUser) {
+        const updatedUserPayload = {
+          ...reduxUser,
+          avatarUrl: newAvatarUrl,
+        };
+        dispatch(updateUser(updatedUserPayload));
+
+        localStorage.setItem(
+          'auth',
+          JSON.stringify({ token, user: updatedUserPayload })
+        );
+      }
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'העלאת התמונה נכשלה. אנא נסי קובץ אחר.');
+    } finally {
+      setUploading(false);
     }
-
-    // 2. עדכון ה-Redux Store כדי שכל האתר יתעדכן (למשל ה-Navbar)
-    if (reduxUser) {
-      const updatedUserPayload = {
-        ...reduxUser,
-        avatarUrl: newAvatarUrl,
-      };
-      dispatch(updateUser(updatedUserPayload));
-
-      // 3. עדכון ה-LocalStorage כדי שהשינוי יישמר גם בריענון
-      localStorage.setItem(
-        'auth',
-        JSON.stringify({ token, user: updatedUserPayload })
-      );
-    }
-  } catch (err: any) {
-    setError(err.message || 'העלאת התמונה נכשלה. אנא נסי קובץ אחר.');
-  } finally {
-    setUploading(false);
-  }
-};
+  };
 
   if (!reduxUser) return <p style={{ padding: '2rem', textAlign: 'center' }}>אנא התחברי כדי לצפות בפרופיל.</p>;
 
@@ -119,16 +113,10 @@ const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) =>
 
             {error && <p className="error-text" style={{ color: 'red', marginTop: '0.5rem' }}>{error}</p>}
 
-            <div className="profile-stats" style={{ display: 'flex', gap: '2rem', marginTop: '1.5rem' }}>
-              <div className="profile-stat">
-                <span className="profile-stat-num" style={{ fontSize: '1.5rem', fontWeight: 'bold', display: 'block' }}>{profile?.threadsCount ?? 0}</span>
-                <span className="profile-stat-label">אשכולות</span>
-              </div>
-              <div className="profile-stat">
-                <span className="profile-stat-num" style={{ fontSize: '1.5rem', fontWeight: 'bold', display: 'block' }}>{profile?.commentsCount ?? 0}</span>
-                <span className="profile-stat-label">תגובות</span>
-              </div>
-            </div>
+            <ProfileStats 
+              threadsCount={profile?.threadsCount ?? 0} 
+              commentsCount={profile?.commentsCount ?? 0} 
+            />
           </>
         )}
       </section>

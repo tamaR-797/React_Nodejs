@@ -9,6 +9,7 @@ import {
 } from '../api/usersApi';
 import UserAvatar from '../components/UserAvatar';
 import { formatDate } from '../utils/dateUtils';
+import UserTableRow from '../components/admin/UserTableRow'; // 🔥 הייבוא החדש
 
 const AdminPage: React.FC = () => {
   const queryClient = useQueryClient();
@@ -63,6 +64,7 @@ const AdminPage: React.FC = () => {
         </div>
       </header>
 
+      {/* מדור משתמשים פעילים */}
       <section className="admin-active-section">
         <h2>משתמשים פעילים כעת ({activeUsers.length})</h2>
         <p className="admin-hint">משתמשים שהיו פעילים ב-5 דקות האחרונות</p>
@@ -81,6 +83,7 @@ const AdminPage: React.FC = () => {
         )}
       </section>
 
+      {/* מדור טבלת המשתמשים */}
       <section className="admin-users-section">
         <h2>כל המשתמשים ({users.length})</h2>
         {isLoading ? (
@@ -99,75 +102,17 @@ const AdminPage: React.FC = () => {
               </thead>
               <tbody>
                 {users.map((user) => (
-                  <tr key={user._id}>
-                    {editingId === user._id ? (
-                      <>
-                        <td>
-                          <input
-                            value={editForm.name}
-                            onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-                            className="admin-edit-input"
-                          />
-                        </td>
-                        <td>
-                          <input
-                            value={editForm.email}
-                            onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
-                            className="admin-edit-input"
-                          />
-                        </td>
-                        <td>{user.commentsCount ?? 0}</td>
-                        <td>
-                          <select
-                            value={editForm.role}
-                            onChange={(e) => setEditForm({ ...editForm, role: e.target.value })}
-                            className="admin-edit-input"
-                          >
-                            <option value="User">משתמש</option>
-                            <option value="Admin">מנהל</option>
-                          </select>
-                        </td>
-                        <td className="admin-actions">
-                          <button
-                            className="button"
-                            onClick={() => updateMutation.mutate({ id: user._id, data: editForm })}
-                          >
-                            שמור
-                          </button>
-                          <button className="navbar-button" onClick={() => setEditingId(null)}>
-                            ביטול
-                          </button>
-                        </td>
-                      </>
-                    ) : (
-                      <>
-                        <td>
-                          <div className="admin-user-cell">
-                            <UserAvatar name={user.name} avatarUrl={user.avatarUrl} size={32} />
-                            {user.name}
-                          </div>
-                        </td>
-                        <td>{user.email}</td>
-                        <td>{user.commentsCount ?? 0}</td>
-                        <td>
-                          <span className={user.role === 'Admin' ? 'admin-role-badge' : ''}>
-                            {user.role === 'Admin' ? 'מנהל' : 'משתמש'}
-                          </span>
-                        </td>
-                        <td className="admin-actions">
-                          <button className="navbar-button" onClick={() => startEdit(user)}>
-                            ערוך
-                          </button>
-                          <button
-                            className="admin-delete-btn"
-                            onClick={() => handleDelete(user._id, user.name)}
-                          >
-                            מחק
-                          </button>
-                        </td>
-                      </>
-                    )}
-                  </tr>
+                  <UserTableRow
+                    key={user._id}
+                    user={user}
+                    isEditing={editingId === user._id}
+                    editForm={editForm}
+                    onEditFormChange={(fields) => setEditForm((prev) => ({ ...prev, ...fields }))}
+                    onStartEdit={startEdit}
+                    onCancelEdit={() => setEditingId(null)}
+                    onSave={() => updateMutation.mutate({ id: user._id, data: editForm })}
+                    onDelete={handleDelete}
+                  />
                 ))}
               </tbody>
             </table>

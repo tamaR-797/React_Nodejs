@@ -31,7 +31,7 @@ export const getAllThreads = async (page: number, limit: number, category?: stri
   // שליפת הנתונים עם הפעלת המגבלות וה-populate
   const threads = await Thread.find(queryObj)
     .populate('author', 'name email avatarUrl')
-    .sort({ createdAt: -1 })
+    .sort({ updatedAt: -1 })
     .skip(skip)
     .limit(limit);
 
@@ -61,7 +61,7 @@ export const getAllThreads = async (page: number, limit: number, category?: stri
 
 // 3. לוגיקת הצגת אשכול ספציפי לפי מזהה (Read One Service)
 export const getThreadById = async (id: string) => {
-  const thread = await Thread.findById(id).populate('author', 'name email');
+  const thread = await Thread.findById(id).populate('author', 'name email avatarUrl');
 
   if (!thread) {
     throw new AppError('לא נמצא אשכול דיון עם מזהה זה', 404);
