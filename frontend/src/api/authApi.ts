@@ -4,6 +4,7 @@ export interface AuthUser {
   id: string;
   name: string;
   email: string;
+  avatarUrl?: string | null;
   role?: string;
 }
 
@@ -32,6 +33,7 @@ interface LoginApiResponse {
     name: string;
     email: string;
     role: string;
+    avatarUrl?: string | null;
   };
 }
 
@@ -43,22 +45,29 @@ interface RegisterApiResponse {
     name: string;
     email: string;
     role: string;
+    avatarUrl?: string | null;
   };
 }
 
 export const login = async (payload: LoginRequest): Promise<LoginResponse> => {
-  const response = await axiosInstance.post<LoginApiResponse>('/auth/login', payload);
-  const { token, data } = response.data;
+  try {
+    const response = await axiosInstance.post<LoginApiResponse>('/auth/login', payload);
+    const { token, data } = response.data;
 
-  return {
-    token,
-    user: {
-      id: data.id,
-      name: data.name,
-      email: data.email,
-      role: data.role,
-    },
-  };
+    return {
+      token,
+      user: {
+        id: data.id,
+        name: data.name,
+        email: data.email,
+        role: data.role,
+        avatarUrl: data.avatarUrl,
+      },
+    };
+  } catch (error) {
+    console.error('Login error:', error);
+    throw error;
+  }
 };
 
 export const register = async (payload: RegisterRequest): Promise<AuthUser> => {
@@ -70,5 +79,6 @@ export const register = async (payload: RegisterRequest): Promise<AuthUser> => {
     name: data.name,
     email: data.email,
     role: data.role,
+    avatarUrl: data.avatarUrl,
   };
 };

@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { AppError } from './errorHandler';
 import { config } from '../config/env';
+import { User } from '../models/User';
 
 interface JwtPayload {
   id: string;
@@ -30,6 +31,9 @@ export const protect = async (req: Request, res: Response, next: NextFunction): 
       id: decoded.id,
       role: decoded.role,
     };
+
+    // עדכון זמן פעילות אחרון (לא מחכים לסיום)
+    User.findByIdAndUpdate(decoded.id, { lastSeen: new Date() }).catch(() => {});
 
     return next(); // הטוקן תקין! ממשיכים הלאה
   } catch (error) {

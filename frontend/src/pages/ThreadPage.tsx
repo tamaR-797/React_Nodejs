@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAppSelector } from '../hooks/useAppSelector';
 import { getThreadById, getThreadComments, postThreadComment, ThreadDetail } from '../api/threadsApi';
 import AISummaryModal from '../components/AISummaryModal';
+import UserAvatar from '../components/UserAvatar';
 import { formatDate } from '../utils/dateUtils';
 import { motion } from 'framer-motion';
 
@@ -51,6 +52,7 @@ const ThreadPage: React.FC = () => {
     onSuccess: () => {
       setCommentText('');
       queryClient.invalidateQueries({ queryKey: ['thread', id, 'comments'] });
+      queryClient.invalidateQueries({ queryKey: ['threads'] });
     },
   });
 
@@ -112,10 +114,14 @@ const ThreadPage: React.FC = () => {
         <ul className="reply-list">
           {commentsData.comments.map((comment) => (
             <li key={comment.id} className="reply-card">
+              <div className="reply-author-row">
+                <UserAvatar name={comment.author} avatarUrl={comment.authorAvatarUrl} size={36} />
+                <div>
+                  <strong className="reply-author-name">{comment.author}</strong>
+                  <small className="reply-date">{formatDate(comment.createdAt)}</small>
+                </div>
+              </div>
               <p>{comment.content}</p>
-              <small>
-                By {comment.author} · {formatDate(comment.createdAt)}
-              </small>
             </li>
           ))}
         </ul>

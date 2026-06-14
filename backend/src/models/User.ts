@@ -18,10 +18,18 @@ const userSchema = new Schema(
       type: String, 
       required: [true, 'חובה להזין סיסמה'] 
     },
+    avatarUrl: {
+      type: String,
+      default: null // תמונת פרופיל אופציונלית
+    },
     role: { 
       type: String, 
       enum: ['User', 'Admin'], // הגבלת התפקידים רק למה שהגדרנו
       default: 'User' // ברירת מחדל - משתמש רגיל
+    },
+    lastSeen: {
+      type: Date,
+      default: null,
     }
   },
   { 

@@ -5,6 +5,5 @@ export const config = {
   port: process.env.PORT || 5000,
   mongoUri: process.env.MONGO_URI || 'mongodb://localhost:27017/forum_db',
   jwtSecret: process.env.JWT_SECRET || 'my-temporary-dev-secret-key-12345',
-
-  
+  adminEmail: process.env.ADMIN_EMAIL || '',
 };

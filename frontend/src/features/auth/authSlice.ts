@@ -4,8 +4,8 @@ export interface User {
   id: string;
   name: string;
   email: string;
+  avatarUrl?: string | null;
   role?: string;
-  avatarUrl?: string;
 }
 
 export interface AuthState {
@@ -64,6 +64,11 @@ const authSlice = createSlice({
       state.token = action.payload.token;
       state.error = null;
     },
+    updateUser(state, action: PayloadAction<Partial<User>>) {
+      if (state.user) {
+        state.user = { ...state.user, ...action.payload };
+      }
+    },
   },
 });
 
@@ -73,6 +78,7 @@ export const {
   loginFailure,
   logout,
   setCredentials,
+  updateUser,
 } = authSlice.actions;
 
 export default authSlice.reducer;

@@ -1,12 +1,14 @@
 import express from 'express';
 import cors from 'cors';
+import path from 'path';
 import { config } from './config/env';
 import { logger } from './config/logger';
 import { connectDB } from './config/db';
 import { globalErrorHandler, AppError } from './middlewares/errorHandler';
-import authRoutes from './routes/authRoutes'; // 1. ייבוא נתיבי ה-Auth
-import threadRoutes from './routes/threadRoutes'; // 1. ייבוא נתיבי האשכולות
-import commentRoutes from './routes/commentRoutes';// יבוא נתיבי התגובות
+import authRoutes from './routes/authRoutes';
+import threadRoutes from './routes/threadRoutes';
+import commentRoutes from './routes/commentRoutes';
+import userRoutes from './routes/userRoutes';
 
 const app = express();
 
@@ -17,11 +19,14 @@ connectDB();
 app.use(cors());
 app.use(express.json());
 
-// 2. חיבור הראוטר של ה-Auth לאפליקציה
-app.use('/api/auth', authRoutes);
+// קבצים סטטיים - תמונות פרופיל
+app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
+// חיבור הראוטרים
+app.use('/api/auth', authRoutes);
 app.use('/api/threads', threadRoutes);
 app.use('/api', commentRoutes);
+app.use('/api/users', userRoutes);
 
 // נקודת קצה זמנית לבדיקה (Health Check)
 app.get('/health', (req, res) => {

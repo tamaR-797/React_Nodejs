@@ -1,20 +1,22 @@
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAppDispatch } from '../../hooks/useAppDispatch';
+import { useAppSelector } from '../../hooks/useAppSelector';
 import { logout } from '../../features/auth/authSlice';
 
-/**
- * Navbar
- * Top-level navigation persisted across pages. Minimal links and a logout action.
- */
 const Navbar: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const dispatch = useAppDispatch();
+  const user = useAppSelector((state) => state.auth.user);
+  const isAuthPage = location.pathname === '/login' || location.pathname === '/register';
+
+  if (isAuthPage) return null;
 
   const handleLogout = () => {
     try {
       localStorage.removeItem('auth');
-    } catch (e) {
+    } catch {
       // ignore
     }
     dispatch(logout());
@@ -25,18 +27,23 @@ const Navbar: React.FC = () => {
     <nav className="navbar">
       <div className="navbar-inner">
         <Link to="/" className="navbar-brand">
-          ForumApp
+          פורום
         </Link>
 
         <div className="navbar-links">
           <Link to="/" className="navbar-link">
-            Home
+            בית
           </Link>
           <Link to="/profile" className="navbar-link">
-            Profile
+            פרופיל
           </Link>
+          {user?.role === 'Admin' && (
+            <Link to="/admin" className="navbar-link navbar-admin-link">
+              ניהול
+            </Link>
+          )}
           <button type="button" className="navbar-button" onClick={handleLogout}>
-            Logout
+            התנתק
           </button>
         </div>
       </div>

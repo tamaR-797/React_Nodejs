@@ -7,6 +7,15 @@ import LoginPage from '../pages/auth/LoginPage';
 import RegisterPage from '../pages/auth/RegisterPage';
 import ProfilePage from '../pages/ProfilePage';
 import ThreadPage from '../pages/ThreadPage';
+import AdminPage from '../pages/AdminPage';
+
+const AdminRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
+  const user = useAppSelector((state) => state.auth.user);
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
+  if (user?.role !== 'Admin') return <Navigate to="/" replace />;
+  return <>{children}</>;
+};
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
@@ -64,6 +73,15 @@ const AppRoutes: React.FC = () => {
             <ProtectedRoute>
               <motion.div {...pageTransition}><ProfilePage /></motion.div>
             </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin"
+          element={
+            <AdminRoute>
+              <motion.div {...pageTransition}><AdminPage /></motion.div>
+            </AdminRoute>
           }
         />
       </Routes>

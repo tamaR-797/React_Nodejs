@@ -19,13 +19,19 @@ export const createComment = async (content: string, threadId: string, authorId:
     author: authorId,
   });
 
-  return newComment;
+  // ג. עדכון repliesCount בThread
+  await Thread.findByIdAndUpdate(validThreadId, { $inc: { repliesCount: 1 } });
+
+  const populated = await Comment.findById(newComment._id)
+    .populate('author', 'name email avatarUrl');
+
+  return populated;
 };
 
 // 2. לוגיקת שליפת תגובות של אשכול (Get Comments Service)
 export const getCommentsByThread = async (threadId: string) => {
   const comments = await Comment.find({ thread: String(threadId) })
-    .populate('author', 'name email')
+    .populate('author', 'name email avatarUrl')
     .sort({ createdAt: 1 });
 
   return comments;
@@ -72,5 +78,8 @@ export const deleteComment = async (
     throw new AppError('אין לך הרשאה למחוק תגובה זו', 403);
   }
 
+  // הקטן את repliesCount בThread
+  await Thread.findByIdAndUpdate(comment.thread, { $inc: { repliesCount: -1 } });
+  
   await comment.deleteOne();
 };

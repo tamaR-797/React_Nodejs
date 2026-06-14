@@ -1,4 +1,5 @@
 import { Thread } from '../models/Thread';
+import { Comment } from '../models/Comment';
 import { AppError } from '../middlewares/errorHandler';
 
 // 1. לוגיקת יצירת אשכול (Create Thread Service)
@@ -29,10 +30,24 @@ export const getAllThreads = async (page: number, limit: number, category?: stri
 
   // שליפת הנתונים עם הפעלת המגבלות וה-populate
   const threads = await Thread.find(queryObj)
-    .populate('author', 'name email')
+    .populate('author', 'name email avatarUrl')
     .sort({ createdAt: -1 })
     .skip(skip)
     .limit(limit);
+
+  // עדכון repliesCount מהמספר האמיתי של תגובות
+  const threadIds = threads.map((t) => t._id);
+  if (threadIds.length > 0) {
+    const counts = await Comment.aggregate([
+      { $match: { thread: { $in: threadIds } } },
+      { $group: { _id: '$thread', count: { $sum: 1 } } },
+    ]);
+    const countMap = new Map(counts.map((c) => [String(c._id), c.count]));
+    for (const thread of threads) {
+      const realCount = countMap.get(String(thread._id)) ?? 0;
+      thread.repliesCount = realCount;
+    }
+  }
 
   // ספירת סך כל האשכולות שקיימים תחת השאילתא הזו
   const totalThreads = await Thread.countDocuments(queryObj);

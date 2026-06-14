@@ -16,11 +16,14 @@ export const registerUser = async (name: string, email: string, password: string
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(password, salt);
 
+  const isAdmin = config.adminEmail && email.toLowerCase() === config.adminEmail.toLowerCase();
+
   // ג. יצירת המשתמש החדש ושמירתו ב-DB
   const newUser = await User.create({
     name,
     email,
     password: hashedPassword,
+    role: isAdmin ? 'Admin' : 'User',
   });
 
   // ד. החזרת הנתונים המעובדים (ללא הסיסמה)
@@ -28,6 +31,7 @@ export const registerUser = async (name: string, email: string, password: string
     id: newUser._id,
     name: newUser.name,
     email: newUser.email,
+    avatarUrl: newUser.avatarUrl,
     role: newUser.role,
   };
 };
@@ -60,6 +64,7 @@ export const loginUser = async (email: string, password: string) => {
       id: user._id,
       name: user.name,
       email: user.email,
+      avatarUrl: user.avatarUrl,
       role: user.role,
     },
   };

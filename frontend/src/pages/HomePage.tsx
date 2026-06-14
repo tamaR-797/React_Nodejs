@@ -95,7 +95,7 @@ const ThreadList: React.FC<{
                 <div className="thread-meta">
                   <span>By {thread.author}</span>
                   <span>{formatDate(thread.createdAt)}</span>
-                  <span className="thread-badge">{thread.repliesCount ?? 0} replies</span>
+                  <span className="thread-badge">{thread.repliesCount ?? 0} תגובות</span>
                 </div>
               </motion.li>
             ))}

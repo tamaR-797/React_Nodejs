@@ -3,6 +3,7 @@ import axiosInstance from './axiosInstance';
 export interface Comment {
   id: string;
   author: string;
+  authorAvatarUrl?: string | null;
   content: string;
   createdAt: string;
 }
@@ -48,6 +49,7 @@ interface RawAuthor {
   _id: string;
   name: string;
   email: string;
+  avatarUrl?: string | null;
 }
 
 interface RawThread {
@@ -96,22 +98,28 @@ const mapAuthor = (author: RawAuthor | string): string => {
   return author.name || author.email || author._id;
 };
 
-const mapThread = (raw: RawThread): Thread => ({
+const mapThread = (raw: RawThread & { repliesCount?: number }): Thread => ({
   id: raw._id,
   title: raw.title,
   content: raw.content,
   author: mapAuthor(raw.author),
   createdAt: raw.createdAt,
-  repliesCount: 0,
+  repliesCount: raw.repliesCount ?? 0,
   category: raw.category,
 });
 
-const mapComment = (raw: RawComment): Comment => ({
-  id: raw._id,
-  content: raw.content,
-  author: mapAuthor(raw.author),
-  createdAt: raw.createdAt,
-});
+const mapComment = (raw: RawComment): Comment => {
+  const authorName = mapAuthor(raw.author);
+  const authorAvatarUrl =
+    typeof raw.author === 'object' ? raw.author.avatarUrl : undefined;
+  return {
+    id: raw._id,
+    content: raw.content,
+    author: authorName,
+    authorAvatarUrl,
+    createdAt: raw.createdAt,
+  };
+};
 
 export const getThreads = async (page: number, searchTerm: string): Promise<ThreadResponse> => {
   const response = await axiosInstance.get<ThreadListApiResponse>('/threads', {
