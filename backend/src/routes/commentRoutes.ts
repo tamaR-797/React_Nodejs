@@ -3,7 +3,8 @@ import {
   createComment, 
   getCommentsByThread, 
   updateComment, 
-  deleteComment 
+  deleteComment,
+  likeComment
 } from '../controllers/commentController';
 import { protect } from '../middlewares/authMiddleware';
 import { validate } from '../middlewares/validateMiddleware';
@@ -19,5 +20,6 @@ router.post('/threads/:threadId/comments', protect, validate(createCommentSchema
 // נתיבים לפעולות ישירות על תגובה ספציפית לפי ה-ID שלה
 router.patch('/comments/:id', protect, updateComment);
 router.delete('/comments/:id', protect, deleteComment);
+router.post('/comments/:id/like', protect, likeComment);
 
 export default router;

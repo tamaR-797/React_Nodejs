@@ -8,7 +8,19 @@ import { AppError } from '../middlewares/errorHandler';
  */
 export const getAllUsers = async () => {
   const users = await User.find({}).select('-password');
-  return users;
+  
+  // הוסף מספר תגובות לכל משתמש
+  const usersWithCounts = await Promise.all(
+    users.map(async (user) => {
+      const commentsCount = await Comment.countDocuments({ author: user._id });
+      return {
+        ...user.toObject(),
+        commentsCount,
+      };
+    })
+  );
+  
+  return usersWithCounts;
 };
 
 /**

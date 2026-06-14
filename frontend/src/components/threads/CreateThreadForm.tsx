@@ -1,27 +1,15 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 
-export interface Thread {
-  id: string;
-  title: string;
-  author: string;
-  createdAt: string;
-  repliesCount: number;
-}
-
 interface CreateThreadFormProps {
-  onCreate: (payload: { title: string; content: string; category: string }) => Promise<void>;
+  onCreate: (payload: { title: string; content: string; category: string; iconType: string }) => Promise<void>;
 }
 
-/**
- * CreateThreadForm
- * Simple controlled form to create a new thread through the backend.
- * Calls `onCreate` with the payload and updates the UI on success.
- */
 const CreateThreadForm: React.FC<CreateThreadFormProps> = ({ onCreate }) => {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [category, setCategory] = useState('General');
+  const [iconType, setIconType] = useState('discussion'); // הסטייט החדש לאייקון
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -43,9 +31,10 @@ const CreateThreadForm: React.FC<CreateThreadFormProps> = ({ onCreate }) => {
     setIsSubmitting(true);
 
     try {
-      await onCreate({ title: trimmedTitle, content: trimmedContent, category: trimmedCategory });
+      await onCreate({ title: trimmedTitle, content: trimmedContent, category: trimmedCategory, iconType });
       setTitle('');
       setContent('');
+      setIconType('discussion');
       setSuccessMessage('Thread created successfully.');
     } catch (submitError) {
       setError('Unable to create thread. Please try again.');
@@ -56,49 +45,68 @@ const CreateThreadForm: React.FC<CreateThreadFormProps> = ({ onCreate }) => {
   };
 
   return (
-    <section className="thread-detail-card" style={{ marginBottom: '1.5rem' }}>
-      <h2>Create New Thread</h2>
+    <section className="thread-detail-card" style={{ marginBottom: '1.5rem', textAlign: 'right' }}>
+      <h2>יצירת אשכול חדש</h2>
       <p style={{ color: '#6b7280', marginBottom: '1rem' }}>
-        Add a new discussion topic and it will appear at the top of the thread list.
+        פתחי נושא חדש לדיון והוא יופיע מיד בראש הרשימה.
       </p>
 
       <form onSubmit={handleSubmit}>
         <div style={{ display: 'grid', gap: '1rem' }}>
           <label style={{ display: 'grid', gap: '0.35rem' }}>
-            <span style={{ fontWeight: 600 }}>Title</span>
+            <span style={{ fontWeight: 600 }}>כותרת האשכול</span>
             <input
               value={title}
               onChange={(event) => setTitle(event.target.value)}
               className="search-field"
-              placeholder="Thread title"
+              placeholder="כתבי כותרת ברורה..."
             />
           </label>
 
-          <label style={{ display: 'grid', gap: '0.35rem' }}>
-            <span style={{ fontWeight: 600 }}>Category</span>
-            <input
-              value={category}
-              onChange={(event) => setCategory(event.target.value)}
-              className="search-field"
-              placeholder="Category"
-            />
-          </label>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            <label style={{ display: 'grid', gap: '0.35rem' }}>
+              <span style={{ fontWeight: 600 }}>קטגוריה</span>
+              <input
+                value={category}
+                onChange={(event) => setCategory(event.target.value)}
+                className="search-field"
+                placeholder="קטגוריה"
+              />
+            </label>
+
+            {/* רכיב בחירת אייקון מודרני */}
+            <label style={{ display: 'grid', gap: '0.35rem' }}>
+              <span style={{ fontWeight: 600 }}>סוג נושא (אייקון)</span>
+              <select
+                value={iconType}
+                onChange={(event) => setIconType(event.target.value)}
+                className="search-field"
+                style={{ padding: '0.75rem', borderRadius: '12px', border: '1px solid #cbd5e1', background: '#f8fafc' }}
+              >
+                <option value="discussion">💬 דיון כללי</option>
+                <option value="question">❓ שאלה / עזרה</option>
+                <option value="guide">💡 מדריך / טיפ</option>
+                <option value="announcement">📢 מודעה חשובה</option>
+              </select>
+            </label>
+          </div>
 
           <label style={{ display: 'grid', gap: '0.35rem' }}>
-            <span style={{ fontWeight: 600 }}>Content</span>
+            <span style={{ fontWeight: 600 }}>תוכן האשכול</span>
             <textarea
               value={content}
               onChange={(event) => setContent(event.target.value)}
               className="reply-textarea"
-              placeholder="Write the thread content here..."
+              placeholder="כתבי כאן את התוכן המלא של האשכול..."
+              style={{ minHeight: '120px' }}
             />
           </label>
 
           {error && <p style={{ color: '#dc2626', margin: 0 }}>{error}</p>}
           {successMessage && <p style={{ color: '#16a34a', margin: 0 }}>{successMessage}</p>}
 
-          <motion.button type="submit" className="button" whileHover={{ scale: 1.02 }} disabled={isSubmitting}>
-            {isSubmitting ? 'Creating...' : 'Create Thread'}
+          <motion.button type="submit" className="button" whileHover={{ scale: 1.01 }} disabled={isSubmitting}>
+            {isSubmitting ? 'מייצר אשכול...' : 'פרסם אשכול חדש'}
           </motion.button>
         </div>
       </form>

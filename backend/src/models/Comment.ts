@@ -15,6 +15,21 @@ const commentSchema = new Schema(
       type: Schema.Types.ObjectId, 
       ref: 'User', // מקשר את התגובה למשתמש שכתב אותה
       required: [true, 'תגובה חייבת להיות משויכת לכותב'] 
+    },
+    likes: {
+      type: [{
+        userId: {
+          type: Schema.Types.ObjectId,
+          ref: 'User',
+          required: true
+        },
+        emoji: {
+          type: String,
+          enum: ['👍', '❤️', '😂', '🔥', '😮', '😢'],
+          required: true
+        }
+      }],
+      default: []
     }
   },
   { 

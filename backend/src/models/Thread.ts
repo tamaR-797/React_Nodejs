@@ -1,4 +1,4 @@
-import { Schema, model, Types } from 'mongoose';
+import { Schema, model } from 'mongoose';
 
 const threadSchema = new Schema(
   {
@@ -16,10 +16,20 @@ const threadSchema = new Schema(
       required: [true, 'חובה לבחור קטגוריה (פורום)'],
       trim: true
     },
+    // שדה חדש לבחירת סוג אייקון/תגית לאשכול
+    iconType: {
+      type: String,
+      enum: ['discussion', 'question', 'guide', 'announcement'],
+      default: 'discussion'
+    },
     author: { 
       type: Schema.Types.ObjectId, 
       ref: 'User', // יוצר קשר ישיר (Reference) למודל המשתמשים
       required: [true, 'חובה לשייך כותב לאשכול'] 
+    },
+    repliesCount: {
+      type: Number,
+      default: 0 // מספר התגובות לאשכול
     }
   },
   { 

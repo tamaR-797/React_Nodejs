@@ -92,6 +92,7 @@ const AdminPage: React.FC = () => {
                 <tr>
                   <th>משתמש</th>
                   <th>אימייל</th>
+                  <th>תגובות</th>
                   <th>תפקיד</th>
                   <th>פעולות</th>
                 </tr>
@@ -115,6 +116,7 @@ const AdminPage: React.FC = () => {
                             className="admin-edit-input"
                           />
                         </td>
+                        <td>{user.commentsCount ?? 0}</td>
                         <td>
                           <select
                             value={editForm.role}
@@ -146,6 +148,7 @@ const AdminPage: React.FC = () => {
                           </div>
                         </td>
                         <td>{user.email}</td>
+                        <td>{user.commentsCount ?? 0}</td>
                         <td>
                           <span className={user.role === 'Admin' ? 'admin-role-badge' : ''}>
                             {user.role === 'Admin' ? 'מנהל' : 'משתמש'}

@@ -16,7 +16,7 @@ const storage = multer.diskStorage({
 
 export const avatarUpload = multer({
   storage,
-  limits: { fileSize: 2 * 1024 * 1024 },
+limits: { fileSize: 10 * 1024 * 1024 },
   fileFilter: (_req, file, cb) => {
     const allowed = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
     const ext = path.extname(file.originalname).toLowerCase();

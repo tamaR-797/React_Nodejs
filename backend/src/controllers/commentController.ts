@@ -54,9 +54,12 @@ export const updateComment = async (req: Request, res: Response, next: NextFunct
     // קריאה לשירות לעדכון התגובה
     const updatedComment = await commentService.updateComment(commentId, content, userId, userRole);
 
+    // Populate author data
+    const populatedComment = await (updatedComment as any).populate('author', 'name email avatarUrl');
+
     res.status(200).json({
       status: 'success',
-      data: updatedComment,
+      data: populatedComment,
     });
   } catch (error) {
     return next(error);
@@ -77,6 +80,28 @@ export const deleteComment = async (req: Request, res: Response, next: NextFunct
     res.status(200).json({
       status: 'success',
       message: 'התגובה נמחקה בהצלחה',
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+// 5. הוספה/הסרה של like לתגובה (Like Comment)
+export const likeComment = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const { emoji } = req.body;
+    const commentId = req.params.id as string;
+    const userId = req.user?.id;
+
+    if (!emoji) {
+      return next(new Error('חובה לבחור emoji'));
+    }
+
+    const updatedComment = await commentService.likeComment(commentId, userId, emoji);
+
+    res.status(200).json({
+      status: 'success',
+      data: updatedComment,
     });
   } catch (error) {
     return next(error);

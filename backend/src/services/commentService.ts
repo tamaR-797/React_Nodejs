@@ -32,6 +32,7 @@ export const createComment = async (content: string, threadId: string, authorId:
 export const getCommentsByThread = async (threadId: string) => {
   const comments = await Comment.find({ thread: String(threadId) })
     .populate('author', 'name email avatarUrl')
+    .populate('likes.userId', 'name')
     .sort({ createdAt: 1 });
 
   return comments;
@@ -82,4 +83,44 @@ export const deleteComment = async (
   await Thread.findByIdAndUpdate(comment.thread, { $inc: { repliesCount: -1 } });
   
   await comment.deleteOne();
+};
+
+// 5. לוגיקת הוספה/הסרה של like לתגובה (Like Comment Service)
+export const likeComment = async (
+  commentId: string,
+  userId: string | undefined,
+  emoji: string
+) => {
+  if (!userId) {
+    throw new AppError('חובה להיות מחובר כדי ללייק', 401);
+  }
+
+  const comment = await Comment.findById(commentId);
+
+  if (!comment) {
+    throw new AppError('התגובה לא נמצאה', 404);
+  }
+
+  // בדוק אם המשתמש כבר לייק את התגובה עם אותו emoji
+  const existingLikeIndex = comment.likes.findIndex(
+    (like: any) => like.userId.toString() === userId && like.emoji === emoji
+  );
+
+  if (existingLikeIndex > -1) {
+    // הסר את ה-like (toggle off)
+    comment.likes.splice(existingLikeIndex, 1);
+  } else {
+    // הוסף ה-like החדש (לא מוחק emojis אחרים של המשתמש הזה)
+    comment.likes.push({
+      userId,
+      emoji
+    });
+  }
+
+  const updatedComment = await comment.save();
+  const populated = await Comment.findById(updatedComment._id)
+    .populate('author', 'name email avatarUrl')
+    .populate('likes.userId', 'name');
+
+  return populated;
 };

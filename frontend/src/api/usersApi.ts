@@ -32,6 +32,7 @@ export interface AdminUser {
   role: string;
   lastSeen?: string;
   createdAt?: string;
+  commentsCount?: number;
 }
 
 export const getCurrentUser = async (): Promise<UserProfile> => {

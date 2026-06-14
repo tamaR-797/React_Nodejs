@@ -18,6 +18,11 @@ const axiosInstance = axios.create({
 
 axiosInstance.interceptors.request.use(
   (config: AxiosRequestConfig) => {
+    // Don't check token expiration for auth endpoints
+    if (config.url?.includes('/auth/')) {
+      return config;
+    }
+
     let token = store.getState().auth.token;
 
     if (!token) {
@@ -48,7 +53,8 @@ axiosInstance.interceptors.request.use(
 axiosInstance.interceptors.response.use(
   (response: AxiosResponse) => response,
   (error: AxiosError) => {
-    if (error.response?.status === 401) {
+    // Only redirect to login for 401s that are NOT from auth endpoints (to avoid issues during login/register failures)
+    if (error.response?.status === 401 && !error.config?.url?.includes('/auth/')) {
       store.dispatch(logout());
       if (typeof window !== 'undefined') window.location.href = '/login';
     }

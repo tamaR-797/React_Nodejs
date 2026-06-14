@@ -3,9 +3,15 @@ import axiosInstance from './axiosInstance';
 export interface Comment {
   id: string;
   author: string;
+  authorId?: string;
   authorAvatarUrl?: string | null;
   content: string;
   createdAt: string;
+  likes?: Array<{
+    userId: string;
+    emoji: string;
+    userName?: string;
+  }>;
 }
 
 export interface Thread {
@@ -66,6 +72,10 @@ interface RawComment {
   content: string;
   author: RawAuthor | string;
   createdAt: string;
+  likes?: Array<{
+    userId: RawAuthor | string;
+    emoji: string;
+  }>;
 }
 
 interface ThreadListApiResponse {
@@ -110,14 +120,24 @@ const mapThread = (raw: RawThread & { repliesCount?: number }): Thread => ({
 
 const mapComment = (raw: RawComment): Comment => {
   const authorName = mapAuthor(raw.author);
+  const authorId = typeof raw.author === 'object' ? raw.author._id : (typeof raw.author === 'string' ? raw.author : '');
   const authorAvatarUrl =
     typeof raw.author === 'object' ? raw.author.avatarUrl : undefined;
+  
+  const mappedLikes = (raw.likes || []).map((like: any) => ({
+    userId: typeof like.userId === 'string' ? like.userId : like.userId._id,
+    emoji: like.emoji,
+    userName: typeof like.userId === 'object' ? like.userId.name : undefined,
+  }));
+
   return {
     id: raw._id,
     content: raw.content,
     author: authorName,
+    authorId,
     authorAvatarUrl,
     createdAt: raw.createdAt,
+    likes: mappedLikes,
   };
 };
 
@@ -176,4 +196,26 @@ export const postThreadComment = async (
 ): Promise<Comment> => {
   const response = await axiosInstance.post<CommentCreateResponse>(`/threads/${threadId}/comments`, payload);
   return mapComment(response.data.data);
+};
+
+export const likeComment = async (
+  commentId: string,
+  emoji: string
+): Promise<Comment> => {
+  const response = await axiosInstance.post<CommentCreateResponse>(`/comments/${commentId}/like`, { emoji });
+  return mapComment(response.data.data);
+};
+
+export const editComment = async (
+  commentId: string,
+  content: string
+): Promise<Comment> => {
+  const response = await axiosInstance.patch<CommentCreateResponse>(`/comments/${commentId}`, { content });
+  return mapComment(response.data.data);
+};
+
+export const deleteComment = async (
+  commentId: string
+): Promise<void> => {
+  await axiosInstance.delete(`/comments/${commentId}`);
 };
