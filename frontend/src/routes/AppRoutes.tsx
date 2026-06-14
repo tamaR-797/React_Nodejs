@@ -1,13 +1,14 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useAppSelector } from '../hooks/useAppSelector';
-import HomePage from '../pages/HomePage';
-import LoginPage from '../pages/auth/LoginPage';
-import RegisterPage from '../pages/auth/RegisterPage';
-import ProfilePage from '../pages/ProfilePage';
-import ThreadPage from '../pages/ThreadPage';
-import AdminPage from '../pages/AdminPage';
+
+const HomePage = lazy(() => import('../pages/HomePage'));
+const LoginPage = lazy(() => import('../pages/auth/LoginPage'));
+const RegisterPage = lazy(() => import('../pages/auth/RegisterPage'));
+const ProfilePage = lazy(() => import('../pages/ProfilePage'));
+const ThreadPage = lazy(() => import('../pages/ThreadPage'));
+const AdminPage = lazy(() => import('../pages/AdminPage'));
 
 const AdminRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
@@ -38,53 +39,55 @@ const AppRoutes: React.FC = () => {
 
   return (
     <AnimatePresence mode="wait">
-      <Routes location={location} key={location.pathname}>
-        <Route
-          path="/login"
-          element={<motion.div {...pageTransition}><LoginPage /></motion.div>}
-        />
+      <Suspense fallback={<div style={{ padding: '2rem', textAlign: 'center' }}>Loading page...</div>}>
+        <Routes location={location} key={location.pathname}>
+          <Route
+            path="/login"
+            element={<motion.div {...pageTransition}><LoginPage /></motion.div>}
+          />
 
-        <Route
-          path="/register"
-          element={<motion.div {...pageTransition}><RegisterPage /></motion.div>}
-        />
+          <Route
+            path="/register"
+            element={<motion.div {...pageTransition}><RegisterPage /></motion.div>}
+          />
 
-        <Route
-          path="/"
-          element={
-            <ProtectedRoute>
-              <motion.div {...pageTransition}><HomePage /></motion.div>
-            </ProtectedRoute>
-          }
-        />
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <motion.div {...pageTransition}><HomePage /></motion.div>
+              </ProtectedRoute>
+            }
+          />
 
-        <Route
-          path="/threads/:id"
-          element={
-            <ProtectedRoute>
-              <motion.div {...pageTransition}><ThreadPage /></motion.div>
-            </ProtectedRoute>
-          }
-        />
+          <Route
+            path="/threads/:id"
+            element={
+              <ProtectedRoute>
+                <motion.div {...pageTransition}><ThreadPage /></motion.div>
+              </ProtectedRoute>
+            }
+          />
 
-        <Route
-          path="/profile"
-          element={
-            <ProtectedRoute>
-              <motion.div {...pageTransition}><ProfilePage /></motion.div>
-            </ProtectedRoute>
-          }
-        />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <motion.div {...pageTransition}><ProfilePage /></motion.div>
+              </ProtectedRoute>
+            }
+          />
 
-        <Route
-          path="/admin"
-          element={
-            <AdminRoute>
-              <motion.div {...pageTransition}><AdminPage /></motion.div>
-            </AdminRoute>
-          }
-        />
-      </Routes>
+          <Route
+            path="/admin"
+            element={
+              <AdminRoute>
+                <motion.div {...pageTransition}><AdminPage /></motion.div>
+              </AdminRoute>
+            }
+          />
+        </Routes>
+      </Suspense>
     </AnimatePresence>
   );
 };
